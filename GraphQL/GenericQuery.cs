@@ -1,6 +1,7 @@
 ﻿using HotChocolate;
 using HotChocolate.Types;
 using Sampark.Data;
+using Sampark.GraphQL.Authorization;
 using Sampark.Models;
 
 namespace Sampark.GraphQL
@@ -18,6 +19,7 @@ namespace Sampark.GraphQL
             => db.Persons;
         [UseProjection]
         [UseFiltering]
+        [AsmAuthorize("ASM_PROJECT_READ")]
         public IQueryable<Project> Projects([Service] SamparkDbContext db)
             => db.Projects;
         [UseProjection]
