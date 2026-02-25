@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FluentValidation;
 
 namespace Sampark.Middleware;
 
@@ -9,6 +10,26 @@ public sealed class GlobalExceptionMiddleware(RequestDelegate next, ILogger<Glob
         try
         {
             await next(context);
+        }
+        catch (ValidationException validationException)
+        {
+            logger.LogWarning(validationException, "Validation exception for {Path}", context.Request.Path);
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+
+            var payload = new
+            {
+                message = "Validation failed for the request.",
+                errors = validationException.Errors.Select(e => new
+                {
+                    field = e.PropertyName,
+                    message = e.ErrorMessage,
+                    attemptedValue = e.AttemptedValue
+                })
+            };
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
         }
         catch (Exception ex)
         {

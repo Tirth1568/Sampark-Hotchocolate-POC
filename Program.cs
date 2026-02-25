@@ -4,6 +4,7 @@ using Sampark.Authorization;
 using Sampark.config;
 using Sampark.Data;
 using Sampark.GraphQL;
+using Sampark.GraphQL.Errors;
 using Sampark.GraphQL.Inputs;
 using Sampark.GraphQL.Mutations;
 using Sampark.GraphQL.Validators;
@@ -41,6 +42,7 @@ builder.Services
     .AddProjections()
     .AddFiltering()
     .AddSorting()
+    .AddErrorFilter<ValidationExceptionErrorFilter>()
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
 
 var app = builder.Build();

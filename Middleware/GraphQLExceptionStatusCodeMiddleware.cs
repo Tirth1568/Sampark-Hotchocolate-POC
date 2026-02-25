@@ -75,23 +75,30 @@ public sealed class GraphQLExceptionStatusCodeMiddleware(RequestDelegate next)
 
     private static int? InferStatusCodeFromError(GraphQlError error)
     {
-        if (error.Extensions is not null
-            && error.Extensions.TryGetValue("code", out var codeElement))
+        if (error.Extensions is not null)
         {
-            var code = codeElement.GetString();
-            if (string.Equals(code, "ASM_FORBIDDEN", StringComparison.OrdinalIgnoreCase))
+            if (TryReadHttpStatus(error.Extensions, out var explicitHttpStatus))
             {
-                return StatusCodes.Status403Forbidden;
+                return explicitHttpStatus;
             }
 
-            if (string.Equals(code, "AUTH_NOT_AUTHENTICATED", StringComparison.OrdinalIgnoreCase))
+            if (error.Extensions.TryGetValue("code", out var codeElement))
             {
-                return StatusCodes.Status401Unauthorized;
-            }
+                var code = codeElement.GetString();
+                if (string.Equals(code, "ASM_FORBIDDEN", StringComparison.OrdinalIgnoreCase))
+                {
+                    return StatusCodes.Status403Forbidden;
+                }
 
-            if (string.Equals(code, "VALIDATION_ERROR", StringComparison.OrdinalIgnoreCase))
-            {
-                return StatusCodes.Status400BadRequest;
+                if (string.Equals(code, "AUTH_NOT_AUTHENTICATED", StringComparison.OrdinalIgnoreCase))
+                {
+                    return StatusCodes.Status401Unauthorized;
+                }
+
+                if (string.Equals(code, "VALIDATION_ERROR", StringComparison.OrdinalIgnoreCase))
+                {
+                    return StatusCodes.Status400BadRequest;
+                }
             }
         }
 
@@ -109,12 +116,31 @@ public sealed class GraphQLExceptionStatusCodeMiddleware(RequestDelegate next)
 
         if (message.Contains("Syntax Error", StringComparison.OrdinalIgnoreCase)
             || message.Contains("Cannot query field", StringComparison.OrdinalIgnoreCase)
-            || message.Contains("validation", StringComparison.OrdinalIgnoreCase))
+            || message.Contains("validation", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("variable", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("required", StringComparison.OrdinalIgnoreCase)
+            || message.Contains("invalid", StringComparison.OrdinalIgnoreCase))
         {
             return StatusCodes.Status400BadRequest;
         }
 
         return null;
+    }
+
+    private static bool TryReadHttpStatus(Dictionary<string, JsonElement> extensions, out int statusCode)
+    {
+        statusCode = default;
+        if (!extensions.TryGetValue("httpStatus", out var statusElement))
+        {
+            return false;
+        }
+
+        return statusElement.ValueKind switch
+        {
+            JsonValueKind.Number => statusElement.TryGetInt32(out statusCode),
+            JsonValueKind.String => int.TryParse(statusElement.GetString(), out statusCode),
+            _ => false
+        };
     }
 
     private sealed class GraphQlErrorEnvelope
