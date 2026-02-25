@@ -39,9 +39,12 @@ builder.Services
     .AddTypeExtension<PersonMutation>()
     .AddTypeExtension<ProjectMutation>()
     .AddTypeExtension<EntityMutation>()
+    .AddType<EntityType>()
+    .AddType<ProjectType>()
     .AddProjections()
     .AddFiltering()
     .AddSorting()
+    .AddMaxExecutionDepthRule(10)
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
     //.AddDbSetQueries<SamparkDbContext>();
 
