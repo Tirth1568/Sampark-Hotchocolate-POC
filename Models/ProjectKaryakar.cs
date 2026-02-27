@@ -21,8 +21,12 @@ namespace Sampark.Models
         public int? MandalId { get; set; }
         public int? DepartmentId { get; set; }
 
+        [ForeignKey("ProjectId")]
         public Project? Project { get; set; }
         public Person? KaryakarPerson { get; set; }
+
+        [Column("is_active")]
+        public bool? Is_Active { get; set; }
     }
 }
 

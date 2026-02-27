@@ -7,6 +7,7 @@ using Sampark.GraphQL.Inputs;
 using Sampark.GraphQL.Mutations;
 using Sampark.GraphQL.Validators;
 using Sampark.Models;
+using Sampark.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,11 @@ builder.Services.AddScoped<IValidator<PersonInput>, PersonValidator>();
 builder.Services.AddScoped<IValidator<ProjectInput>, ProjectValidator>();
 builder.Services.AddScoped<IValidator<EntityInput>, EntityValidator>();
 
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ICsvProcessingQueue, CsvProcessingQueue>();
+builder.Services.AddScoped<ICachedQueryService, CachedQueryService>();
+builder.Services.AddHostedService<CsvProcessingWorker>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -33,9 +39,12 @@ builder.Services
     .AddTypeExtension<PersonMutation>()
     .AddTypeExtension<ProjectMutation>()
     .AddTypeExtension<EntityMutation>()
+    .AddType<EntityType>()
+    .AddType<ProjectType>()
     .AddProjections()
     .AddFiltering()
     .AddSorting()
+    .AddMaxExecutionDepthRule(10)
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
     //.AddDbSetQueries<SamparkDbContext>();
 
