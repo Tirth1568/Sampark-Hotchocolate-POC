@@ -1,16 +1,19 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Sampark.Authorization;
 using Sampark.config;
 using Sampark.Data;
 using Sampark.GraphQL;
+using Sampark.GraphQL.Errors;
 using Sampark.GraphQL.Inputs;
 using Sampark.GraphQL.Mutations;
 using Sampark.GraphQL.Validators;
-using Sampark.Models;
+using Sampark.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpContextAccessor();
 
 // Add DbContext
 builder.Services.AddDbContext<SamparkDbContext>(options =>
@@ -20,6 +23,9 @@ builder.Services.AddDbContext<SamparkDbContext>(options =>
 builder.Services.AddScoped<IValidator<PersonInput>, PersonValidator>();
 builder.Services.AddScoped<IValidator<ProjectInput>, ProjectValidator>();
 builder.Services.AddScoped<IValidator<EntityInput>, EntityValidator>();
+
+// Demo external authorization integration.
+builder.Services.AddScoped<IAsmAuthorizationService, DemoExternalAsmAuthorizationService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -36,9 +42,8 @@ builder.Services
     .AddProjections()
     .AddFiltering()
     .AddSorting()
+    .AddErrorFilter<ValidationExceptionErrorFilter>()
     .ModifyRequestOptions(opt => opt.IncludeExceptionDetails = true);
-    //.AddDbSetQueries<SamparkDbContext>();
-
 
 var app = builder.Build();
 
@@ -51,7 +56,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
+// Demo authentication based on request headers:
+// x-user: any value (marks user as authenticated)
+// x-asm-codes: comma separated ASM codes, e.g. ASM_PROJECT_READ
+app.UseMiddleware<DemoAuthenticationMiddleware>();
+
 app.UseAuthorization();
+
+app.UseMiddleware<GraphQLExceptionStatusCodeMiddleware>();
 
 app.MapControllers();
 

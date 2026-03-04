@@ -4,3 +4,35 @@ GET {{Sampark_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+# Authorized GraphQL request (expects 200)
+POST {{Sampark_HostAddress}}/graphql
+Content-Type: application/json
+x-user: demo.user
+x-asm-codes: ASM_PROJECT_READ
+
+{
+  "query": "query { projects { projectName } }"
+}
+
+###
+
+# Unauthorized GraphQL request (expects 403)
+POST {{Sampark_HostAddress}}/graphql
+Content-Type: application/json
+x-user: demo.user
+x-asm-codes: ASM_OTHER
+
+{
+  "query": "query { projects { projectName } }"
+}
+
+###
+
+# GraphQL validation error (expects 400)
+POST {{Sampark_HostAddress}}/graphql
+Content-Type: application/json
+
+{
+  "query": "query { invalidField }"
+}
