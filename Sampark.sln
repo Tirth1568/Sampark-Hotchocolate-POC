@@ -5,6 +5,8 @@ VisualStudioVersion = 17.14.36705.20 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sampark", "Sampark.csproj", "{D232492C-309B-4EE4-928C-71538A2C2936}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sampark.Benchmarks", "Sampark.Benchmarks\Sampark.Benchmarks.csproj", "{884FF25C-B3F7-4E45-A9E3-17C7D59CAA63}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D232492C-309B-4EE4-928C-71538A2C2936}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D232492C-309B-4EE4-928C-71538A2C2936}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D232492C-309B-4EE4-928C-71538A2C2936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{884FF25C-B3F7-4E45-A9E3-17C7D59CAA63}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{884FF25C-B3F7-4E45-A9E3-17C7D59CAA63}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{884FF25C-B3F7-4E45-A9E3-17C7D59CAA63}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{884FF25C-B3F7-4E45-A9E3-17C7D59CAA63}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
