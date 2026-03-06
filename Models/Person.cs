@@ -14,7 +14,7 @@ namespace Sampark.Models
         public string? BapsId { get; set; }
 
         [Column("baps_pid")]
-        public string? BapsPid { get; set; }
+        public double? BapsPid { get; set; }
 
         [Column("gender")]
         public string? Gender { get; set; }
@@ -137,13 +137,13 @@ namespace Sampark.Models
         public bool IsActive { get; set; }
 
         [Column("created_at")]
-        public DateTime? CreatedAt { get; set; }
+        public string? CreatedAt { get; set; }
 
         [Column("created_by")]
         public string? CreatedBy { get; set; }
 
         [Column("updated_at")]
-        public DateTime? UpdatedAt { get; set; }
+        public string? UpdatedAt { get; set; }
 
         [Column("updated_by")]
         public string? UpdatedBy { get; set; }
