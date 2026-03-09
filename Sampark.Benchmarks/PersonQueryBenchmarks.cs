@@ -5,6 +5,7 @@ using System.Text;
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [SimpleJob(warmupCount: 3, iterationCount: 10)]
+[ArtifactsPath(@"C:\bdn")]
 public class PersonQueryBenchmarks
 {
     // ── Queries under test ──────────────────────────────────────────────────

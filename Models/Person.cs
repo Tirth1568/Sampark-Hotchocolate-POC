@@ -97,6 +97,8 @@ namespace Sampark.Models
         [Column("entity_id")]
         public int? EntityId { get; set; }
 
+        public Entity? Entity { get; set; }
+
         [Column("center_name")]
         public string? CenterName { get; set; }
 

@@ -5,34 +5,62 @@ using System.Text;
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
 [SimpleJob(warmupCount: 3, iterationCount: 10)]
+[ArtifactsPath(@"C:\bdn")]
 public class EntityQueryBenchmarks
 {
-    // ── Queries under test ──────────────────────────────────────────────────
+    // ── Active benchmarks ───────────────────────────────────────────────────
 
-    // Baseline: minimal fields
-    private const string QueryAllEntities = """
-        { "query": "{ entities { entityId name code is_active } }" }
+    // With pagination — flat (no children)
+    private const string QueryWithPagination = """
+        { "query": "{ entities(first: 20) { nodes { entityId name code is_active } pageInfo { hasNextPage endCursor } } }" }
         """;
 
-    // Smaller projection: only 2 fields
-    private const string QueryEntitiesSmallProjection = """
-        { "query": "{ entities { entityId name } }" }
+    // Without pagination — flat (no children)
+    private const string QueryWithoutPagination = """
+        { "query": "{ entitiesAll { entityId name code is_active } }" }
         """;
 
-    // Larger projection: all scalar fields
-    private const string QueryEntitiesLargeProjection = """
-        { "query": "{ entities { entityId division_id code name parent_entity_id division_geo_level_id phone email uuid is_active created_at created_by updated_at updated_by } }" }
+    // With pagination — includes children (self-referential join)
+    private const string QueryWithPaginationAndChildren = """
+        { "query": "{ entities(first: 20) { nodes { entityId name code is_active children { entityId name code } } pageInfo { hasNextPage endCursor } } }" }
         """;
 
-    // Filtered: server-side WHERE
-    private const string QueryEntitiesFiltered = """
-        { "query": "{ entities(where: { is_active: { eq: 1 } }) { entityId name code division_id } }" }
+    // Without pagination — includes children (self-referential join)
+    private const string QueryWithoutPaginationAndChildren = """
+        { "query": "{ entitiesAll { entityId name code is_active children { entityId name code } } }" }
         """;
 
-    // Single row by ID
-    private const string QueryEntityById = """
-        { "query": "{ entities(where: { entityId: { eq: 1 } }) { entityId name code email phone } }" }
-        """;
+    // ── Commented-out projection / filter benchmarks (run separately) ───────
+    //
+    // private const string QueryAllEntities =
+    //     """{ "query": "{ entities { entityId name code is_active } }" }""";
+    //
+    // private const string QueryEntitiesSmallProjection =
+    //     """{ "query": "{ entities { entityId name } }" }""";
+    //
+    // private const string QueryEntitiesLargeProjection =
+    //     """{ "query": "{ entities { entityId division_id code name parent_entity_id division_geo_level_id phone email uuid is_active created_at created_by updated_at updated_by } }" }""";
+    //
+    // private const string QueryEntitiesFiltered =
+    //     """{ "query": "{ entities(where: { is_active: { eq: 1 } }) { entityId name code division_id } }" }""";
+    //
+    // private const string QueryEntityById =
+    //     """{ "query": "{ entities(where: { entityId: { eq: 1 } }) { entityId name code email phone } }" }""";
+    //
+    // [Benchmark(Baseline = true, Description = "All entities — 4 fields")]
+    // public async Task<int> GetAllEntities() => (await PostGraphQL(QueryAllEntities)).Length;
+    //
+    // [Benchmark(Description = "All entities — 2 fields (small projection)")]
+    // public async Task<int> GetEntitiesSmallProjection() => (await PostGraphQL(QueryEntitiesSmallProjection)).Length;
+    //
+    // [Benchmark(Description = "All entities — all scalar fields (large projection)")]
+    // public async Task<int> GetEntitiesLargeProjection() => (await PostGraphQL(QueryEntitiesLargeProjection)).Length;
+    //
+    // [Benchmark(Description = "Filter entities by is_active (WHERE clause)")]
+    // public async Task<int> GetEntitiesFilteredByActive() => (await PostGraphQL(QueryEntitiesFiltered)).Length;
+    //
+    // [Benchmark(Description = "Single entity by ID (best-case latency)")]
+    // public async Task<int> GetEntityById() => (await PostGraphQL(QueryEntityById)).Length;
 
     // ── Setup ───────────────────────────────────────────────────────────────
 
@@ -51,25 +79,21 @@ public class EntityQueryBenchmarks
 
     // ── Benchmarks ──────────────────────────────────────────────────────────
 
-    [Benchmark(Baseline = true, Description = "All entities — 4 fields")]
-    public async Task<int> GetAllEntities()
-        => (await PostGraphQL(QueryAllEntities)).Length;
+    [Benchmark(Baseline = true, Description = "Paginated — flat (no children)")]
+    public async Task<int> WithPagination()
+        => (await PostGraphQL(QueryWithPagination)).Length;
 
-    [Benchmark(Description = "All entities — 2 fields (small projection)")]
-    public async Task<int> GetEntitiesSmallProjection()
-        => (await PostGraphQL(QueryEntitiesSmallProjection)).Length;
+    [Benchmark(Description = "No pagination — flat (no children)")]
+    public async Task<int> WithoutPagination()
+        => (await PostGraphQL(QueryWithoutPagination)).Length;
 
-    [Benchmark(Description = "All entities — all scalar fields (large projection)")]
-    public async Task<int> GetEntitiesLargeProjection()
-        => (await PostGraphQL(QueryEntitiesLargeProjection)).Length;
+    [Benchmark(Description = "Paginated — with children (self-referential join)")]
+    public async Task<int> WithPaginationAndChildren()
+        => (await PostGraphQL(QueryWithPaginationAndChildren)).Length;
 
-    [Benchmark(Description = "Filter entities by is_active (WHERE clause)")]
-    public async Task<int> GetEntitiesFilteredByActive()
-        => (await PostGraphQL(QueryEntitiesFiltered)).Length;
-
-    [Benchmark(Description = "Single entity by ID (best-case latency)")]
-    public async Task<int> GetEntityById()
-        => (await PostGraphQL(QueryEntityById)).Length;
+    [Benchmark(Description = "No pagination — with children (self-referential join)")]
+    public async Task<int> WithoutPaginationAndChildren()
+        => (await PostGraphQL(QueryWithoutPaginationAndChildren)).Length;
 
     // ── Cleanup ─────────────────────────────────────────────────────────────
 

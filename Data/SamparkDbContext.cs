@@ -81,6 +81,13 @@ namespace Sampark.Data
                .WithMany(e => e.Children)
                .HasForeignKey(e => e.parent_entity_id)
                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Person>()
+               .HasOne(p => p.Entity)
+               .WithMany()
+               .HasForeignKey(p => p.EntityId)
+               .OnDelete(DeleteBehavior.SetNull)
+               .IsRequired(false);
                 }
     }
 }
