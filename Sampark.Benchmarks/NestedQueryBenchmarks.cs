@@ -14,7 +14,7 @@ using System.Text;
 
 [MemoryDiagnoser]
 [Orderer(SummaryOrderPolicy.FastestToSlowest)]
-[SimpleJob(warmupCount: 3, iterationCount: 10)]
+[SimpleJob(warmupCount: 3, iterationCount: 100)]
 [ArtifactsPath(@"C:\bdn")]
 public class NestedQueryBenchmarks
 {
@@ -55,19 +55,19 @@ public class NestedQueryBenchmarks
 
     // ── Benchmarks ──────────────────────────────────────────────────────────
 
-    [Benchmark(Baseline = true, Description = "L2 paginated — Person → Entity")]
+    [Benchmark(Baseline = true, Description = "L2 paginated — Person → Entity with 100 iteration")]
     public async Task<int> PersonWithEntity_Paged()
         => (await PostGraphQL(QueryPersonsWithEntity_Paged)).Length;
 
-    [Benchmark(Description = "L2 no paging — Person → Entity")]
+    [Benchmark(Description = "L2 no paging — Person → Entity with 100 iteration")]
     public async Task<int> PersonWithEntity_All()
         => (await PostGraphQL(QueryPersonsWithEntity_All)).Length;
 
-    [Benchmark(Description = "L3 paginated — Person → Entity → Children")]
+    [Benchmark(Description = "L3 paginated — Person → Entity → Children with 100 iteration")]
     public async Task<int> PersonWithEntityAndChildren_Paged()
         => (await PostGraphQL(QueryPersonsWithEntityAndChildren_Paged)).Length;
 
-    [Benchmark(Description = "L3 no paging — Person → Entity → Children")]
+    [Benchmark(Description = "L3 no paging — Person → Entity → Children with 100 iteration")]
     public async Task<int> PersonWithEntityAndChildren_All()
         => (await PostGraphQL(QueryPersonsWithEntityAndChildren_All)).Length;
 
