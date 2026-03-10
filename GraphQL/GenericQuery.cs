@@ -17,6 +17,17 @@ namespace Sampark.GraphQL
     {
         public IQueryable<Person> Persons([Service] SamparkDbContext db)
             => db.Persons;
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Person> PersonsAll([Service] SamparkDbContext db)
+            => db.Persons;
+
+        [UsePaging]
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Person> PersonsPaged([Service] SamparkDbContext db)
+            => db.Persons;
         [UseProjection]
         [UseFiltering]
         [AsmAuthorize("ASM_PROJECT_READ")]
@@ -34,9 +45,15 @@ namespace Sampark.GraphQL
         [UseFiltering]
         public IQueryable<ProjectKaryakar> ProjectKaryakars([Service] SamparkDbContext db)
             => db.ProjectKaryakars;
+        [UsePaging]
         [UseProjection]
         [UseFiltering]
         public IQueryable<Entity> Entities([Service] SamparkDbContext db)
+            => db.Entities;
+
+        [UseProjection]
+        [UseFiltering]
+        public IQueryable<Entity> EntitiesAll([Service] SamparkDbContext db)
             => db.Entities;
     }
 }

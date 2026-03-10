@@ -3,7 +3,7 @@ namespace Sampark.GraphQL.Inputs
     public class PersonInput
     {
         public string? BapsId { get; set; }
-        public string? BapsPid { get; set; }
+        public double? BapsPid { get; set; }
         public string? Gender { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
